@@ -1,6 +1,5 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyfOXZQQj0rljPiqsg8v79DF4MunEfO-5ngsE9j89Gsc-KheuthVoDDdhYT0_OaT7GN/exec";
+window.API_URL = "https://script.google.com/macros/s/AKfycbyfOXZQQj0rljPiqsg8v79DF4MunEfO-5ngsE9j89Gsc-KheuthVoDDdhYT0_OaT7GN/exec";
 let currentUser = null;
-
 document.addEventListener('DOMContentLoaded', () => {
     // Carrega usuário do cache se existir
     const cachedUser = localStorage.getItem('geasflix_user');
