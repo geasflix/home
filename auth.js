@@ -1,3 +1,4 @@
+const API_URL = "https://script.google.com/macros/s/AKfycbyEzhIKzLqHzHRex2mpIbeYWPFRxBOPYkyNM_JL24LwqLkf3JSwZJjpKtRDoJKmB_Wy/exec";
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -6,6 +7,23 @@ document.addEventListener('DOMContentLoaded', () => {
         currentUser = JSON.parse(cachedUser);
         setupAuthenticatedUI();
     }
+    
+    // Estilização forçada padrão Netflix para os botões de auth
+    const authButtons = document.querySelectorAll('#login-form button, #register-form button');
+    authButtons.forEach(btn => {
+        btn.style.backgroundColor = '#E50914';
+        btn.style.color = '#FFFFFF';
+        btn.style.fontWeight = 'bold';
+        btn.style.border = 'none';
+        btn.style.padding = '12px 24px';
+        btn.style.borderRadius = '4px';
+        btn.style.cursor = 'pointer';
+        btn.style.width = '100%';
+        btn.style.fontSize = '16px';
+        btn.style.marginTop = '10px';
+        btn.addEventListener('mouseover', () => btn.style.backgroundColor = '#b20710');
+        btn.addEventListener('mouseout', () => btn.style.backgroundColor = '#E50914');
+    });
 });
 
 function toggleAuthMode(mode) {
@@ -20,16 +38,25 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
     const email = document.getElementById('login-email').value;
     const pass = document.getElementById('login-password').value;
     
-    google.script.run.withSuccessHandler(res => {
+    fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ action: 'loginUser', email: email, password: pass })
+    })
+    .then(response => response.json())
+    .then(res => {
         hideLoader();
         if (res.success) {
             currentUser = res;
             localStorage.setItem('geasflix_user', JSON.stringify(res));
             setupAuthenticatedUI();
         } else {
-            alert(res);
+            alert(res.message || res);
         }
-    }).loginUser(email, pass);
+    })
+    .catch(error => {
+        hideLoader();
+        alert('ERRO_SINTAXE: Falha na comunicação com o servidor.');
+    });
 });
 
 document.getElementById('register-form').addEventListener('submit', (e) => {
@@ -47,15 +74,28 @@ document.getElementById('register-form').addEventListener('submit', (e) => {
     }
 
     showLoader();
-    google.script.run.withSuccessHandler(res => {
+    
+    fetch(API_URL, {
+        method: 'POST',
+        body: JSON.stringify({ 
+            action: 'registerUser', 
+            userData: { fullName: name, cpf: cpf, email: email, password: pass } 
+        })
+    })
+    .then(response => response.json())
+    .then(res => {
         hideLoader();
         if (res.success) {
             alert('Registro concluído. Faça login.');
             toggleAuthMode('login');
         } else {
-            alert(res);
+            alert(res.message || res);
         }
-    }).registerUser({ fullName: name, cpf: cpf, email: email, password: pass });
+    })
+    .catch(error => {
+        hideLoader();
+        alert('ERRO_SINTAXE: Falha na comunicação com o servidor.');
+    });
 });
 
 function setupAuthenticatedUI() {
@@ -64,7 +104,7 @@ function setupAuthenticatedUI() {
     document.getElementById('main-header').classList.remove('hidden');
     document.getElementById('main-footer').classList.remove('hidden');
     
-    if (currentUser.isAdmin) {
+    if (currentUser && currentUser.isAdmin) {
         document.getElementById('btn-adm').classList.remove('hidden');
     }
     navigate('home');
