@@ -214,5 +214,5 @@ footer {
 @media (max-width: 600px) {
     .movie-details-layout { flex-direction: column; }
     #detail-cover { width: 100%; max-width: none; }
-    .logo-container img { max-width: 100px; }
+    .logo-container img { max-width: 20px; }
 }
