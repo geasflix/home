@@ -1,14 +1,15 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyEzhIKzLqHzHRex2mpIbeYWPFRxBOPYkyNM_JL24LwqLkf3JSwZJjpKtRDoJKmB_Wy/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyfOXZQQj0rljPiqsg8v79DF4MunEfO-5ngsE9j89Gsc-KheuthVoDDdhYT0_OaT7GN/exec";
 let currentUser = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Carrega usuário do cache se existir
     const cachedUser = localStorage.getItem('geasflix_user');
     if (cachedUser) {
         currentUser = JSON.parse(cachedUser);
         setupAuthenticatedUI();
     }
     
-    // Estilização forçada padrão Netflix para os botões de auth
+    // Estilização forçada padrão Netflix
     const authButtons = document.querySelectorAll('#login-form button, #register-form button');
     authButtons.forEach(btn => {
         btn.style.backgroundColor = '#E50914';
@@ -26,12 +27,14 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Ajustado para os IDs do index.html (view-login/register)
 function toggleAuthMode(mode) {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('register-section').classList.add('hidden');
-    document.getElementById(`${mode}-section`).classList.remove('hidden');
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-register').classList.add('hidden');
+    document.getElementById(`view-${mode}`).classList.remove('hidden');
 }
 
+// Handler do Login
 document.getElementById('login-form').addEventListener('submit', (e) => {
     e.preventDefault();
     showLoader();
@@ -50,15 +53,17 @@ document.getElementById('login-form').addEventListener('submit', (e) => {
             localStorage.setItem('geasflix_user', JSON.stringify(res));
             setupAuthenticatedUI();
         } else {
-            alert(res.message || res);
+            alert(res.message || 'Erro no login.');
         }
     })
     .catch(error => {
         hideLoader();
-        alert('ERRO_SINTAXE: Falha na comunicação com o servidor.');
+        console.error(error);
+        alert('Falha na comunicação com o servidor.');
     });
 });
 
+// Handler do Registro
 document.getElementById('register-form').addEventListener('submit', (e) => {
     e.preventDefault();
     const name = document.getElementById('reg-name').value;
@@ -66,15 +71,10 @@ document.getElementById('register-form').addEventListener('submit', (e) => {
     const email = document.getElementById('reg-email').value;
     const pass = document.getElementById('reg-password').value;
     
-    if (name.split(' ').length < 2 || name.length < 4) return alert('Insira nome e sobrenome (min. 4 letras).');
-    if (cpf.length < 11 || isNaN(cpf)) return alert('CPF inválido. Use apenas números (mínimo 11).');
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return alert('Email inválido.');
-    if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}/.test(pass)) {
-        return alert('Senha deve ter no mínimo 6 caracteres, maiúscula, minúscula, número e caractere especial.');
-    }
-
-    showLoader();
+    if (name.split(' ').length < 2 || name.length < 4) return alert('Insira nome e sobrenome.');
+    if (cpf.length < 11) return alert('CPF inválido.');
     
+    showLoader();
     fetch(API_URL, {
         method: 'POST',
         body: JSON.stringify({ 
@@ -89,24 +89,29 @@ document.getElementById('register-form').addEventListener('submit', (e) => {
             alert('Registro concluído. Faça login.');
             toggleAuthMode('login');
         } else {
-            alert(res.message || res);
+            alert(res.message || 'Erro no registro.');
         }
     })
     .catch(error => {
         hideLoader();
-        alert('ERRO_SINTAXE: Falha na comunicação com o servidor.');
+        alert('Falha na comunicação.');
     });
 });
 
+// Função para configurar a tela após logado
 function setupAuthenticatedUI() {
-    document.getElementById('login-section').classList.add('hidden');
-    document.getElementById('register-section').classList.add('hidden');
+    // Esconde as views de auth e mostra o conteúdo principal
+    document.getElementById('view-login').classList.add('hidden');
+    document.getElementById('view-register').classList.add('hidden');
+    
     document.getElementById('main-header').classList.remove('hidden');
     document.getElementById('main-footer').classList.remove('hidden');
     
+    // Mostra botão de ADM se for admin
     if (currentUser && currentUser.isAdmin) {
-        document.getElementById('btn-adm').classList.remove('hidden');
+        document.getElementById('adm-btn').classList.remove('hidden');
     }
+    
     navigate('home');
 }
 
