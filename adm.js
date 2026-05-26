@@ -1,6 +1,3 @@
-const API_URL = "https://script.google.com/macros/s/AKfycbyfOXZQQj0rljPiqsg8v79DF4MunEfO-5ngsE9j89Gsc-KheuthVoDDdhYT0_OaT7GN/exec";
-let html5QrcodeScanner = null;
-
 function showAdmPanel(panelType) {
     const area = document.getElementById('adm-content-area');
     area.innerHTML = '';
