@@ -6,8 +6,23 @@
   <title>GEASFLIX</title>
   <link rel="stylesheet" href="global.css">
   <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <style>
+    /* Correção rápida para o tamanho da logo de login */
+    .login-logo {
+      width: 100%;
+      max-width: 180px; /* Impede a imagem de ficar gigante */
+      height: auto;
+      display: block;
+      margin: 0 auto 30px auto; /* Centraliza e dá espaço em baixo */
+    }
+  </style>
 </head>
 <body>
+
+  <div id="loader" class="loader-overlay hidden">
+    <div class="spinner"></div>
+  </div>
+
   <header id="main-header" class="hidden">
     <div class="logo-container">
       <img src="logo.png" alt="GEASFLIX" id="logo">
@@ -27,12 +42,12 @@
       <img src="logo.png" alt="GEASFLIX" class="login-logo">
       <div class="login-box">
         <h2>Entrar</h2>
-        <form id="login-form" onsubmit="handleLogin(event)">
+        <form id="login-form">
           <input type="email" id="login-email" placeholder="Email" required>
           <input type="password" id="login-password" placeholder="Senha" required>
           <button type="submit" class="red-btn">Entrar</button>
         </form>
-        <p>Novo por aqui? <a href="#" onclick="showRegister()">Registrar-se</a></p>
+        <p>Novo por aqui? <a href="#" onclick="toggleAuthMode('register')">Registrar-se</a></p>
       </div>
     </section>
 
@@ -40,14 +55,14 @@
       <img src="logo.png" alt="GEASFLIX" class="login-logo">
       <div class="login-box">
         <h2>Registrar</h2>
-        <form id="register-form" onsubmit="handleRegister(event)">
+        <form id="register-form">
           <input type="text" id="reg-name" placeholder="Nome Completo" required minlength="4">
           <input type="text" id="reg-cpf" placeholder="CPF" required minlength="11">
           <input type="email" id="reg-email" placeholder="Email" required>
           <input type="password" id="reg-password" placeholder="Senha" required minlength="6">
           <button type="submit" class="red-btn">Registrar</button>
         </form>
-        <p>Já tem uma conta? <a href="#" onclick="showLogin()">Entrar</a></p>
+        <p>Já tem uma conta? <a href="#" onclick="toggleAuthMode('login')">Entrar</a></p>
       </div>
     </section>
 
@@ -70,7 +85,7 @@
     <section id="view-suggest" class="view hidden">
       <div class="form-container">
         <h2>Sugerir um Filme</h2>
-        <form id="suggest-form" onsubmit="handleSuggestion(event)">
+        <form id="suggest-form">
           <input type="text" id="sug-movie" placeholder="Nome do Filme" required>
           <input type="url" id="sug-trailer" placeholder="Link do Trailer (Opcional)">
           <button type="submit" class="red-btn">Enviar Sugestão</button>
@@ -129,21 +144,20 @@
   </div>
 
   <script src="auth.js"></script>
-  <script src="votes.js"></script>
-  <script src="suggestions.js"></script>
-  <script src="tickets.js"></script>
-  <script src="results.js"></script>
-  <script src="adm.js"></script>
   <script>
+    // Funções globais utilitárias para o front
+    function showLoader() { document.getElementById('loader').classList.remove('hidden'); }
+    function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
+
     function navigate(viewId) {
       document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
       document.getElementById('view-' + viewId).classList.remove('hidden');
-      if(viewId === 'home') loadMovies();
-      if(viewId === 'tickets') loadTicketsData();
+      // if(viewId === 'home') loadMovies();
+      // if(viewId === 'tickets') loadTicketsData();
     }
     
     window.onload = function() {
-      checkAuth();
+      // checkAuth() logic is already handled inside DOMContentLoaded in auth.js
     }
   </script>
 </body>
