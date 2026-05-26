@@ -1,3 +1,4 @@
+const API_URL = "https://script.google.com/macros/s/AKfycbyfOXZQQj0rljPiqsg8v79DF4MunEfO-5ngsE9j89Gsc-KheuthVoDDdhYT0_OaT7GN/exec";
 let html5QrcodeScanner = null;
 
 function showAdmPanel(panelType) {
@@ -10,7 +11,12 @@ function showAdmPanel(panelType) {
 
     if (panelType === 'adm-add-session') {
         showLoader();
-        google.script.run.withSuccessHandler(movies => {
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'getMoviesDropdown' })
+        })
+        .then(r => r.json())
+        .then(movies => {
             hideLoader();
             let options = movies.map(m => `<option value="${m}">${m}</option>`).join('');
             area.innerHTML = `
@@ -34,14 +40,29 @@ function showAdmPanel(panelType) {
                     time: document.getElementById('adm-ses-time').value,
                     sessionCode: document.getElementById('adm-ses-code').value
                 };
-                google.script.run.withSuccessHandler(r => { hideLoader(); alert('Sessão criada!'); area.innerHTML=''; }).adminAddSession(data);
+                
+                fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'adminAddSession', sessionData: data })
+                })
+                .then(r => r.json())
+                .then(r => {
+                    hideLoader();
+                    alert('Sessão criada!');
+                    area.innerHTML = '';
+                });
             };
-        }).getMoviesDropdown();
+        });
     }
     
     if (panelType === 'adm-view-suggestions') {
         showLoader();
-        google.script.run.withSuccessHandler(suggs => {
+        fetch(API_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: 'adminGetSuggestions' })
+        })
+        .then(r => r.json())
+        .then(suggs => {
             hideLoader();
             let html = '<h3>Sugestões</h3><br>';
             suggs.forEach(s => {
@@ -52,7 +73,7 @@ function showAdmPanel(panelType) {
                 </div>`;
             });
             area.innerHTML = html;
-        }).adminGetSuggestions();
+        });
     }
 
     if (panelType === 'adm-view-votes') {
@@ -68,14 +89,20 @@ function showAdmPanel(panelType) {
         html5QrcodeScanner.render((decodedText) => {
             html5QrcodeScanner.clear();
             showLoader();
-            google.script.run.withSuccessHandler(res => {
+            
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'adminConfirmTicket', qrContent: decodedText })
+            })
+            .then(r => r.json())
+            .then(res => {
                 hideLoader();
                 if (res.success) {
                     alert(`Ticket Confirmado!\nFilme: ${res.movie}`);
                 } else {
-                    alert(res);
+                    alert(res.message || res);
                 }
-            }).adminConfirmTicket(decodedText);
+            });
         }, (err) => {});
     }
 
@@ -103,7 +130,17 @@ function showAdmPanel(panelType) {
                 sessionCode: document.getElementById('adm-mov-session').value,
                 limite: document.getElementById('adm-mov-limit').value
             };
-            google.script.run.withSuccessHandler(r => { hideLoader(); alert('Filme adicionado!'); area.innerHTML=''; }).adminAddMovie(data);
+            
+            fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'adminAddMovie', movieData: data })
+            })
+            .then(r => r.json())
+            .then(r => {
+                hideLoader();
+                alert('Filme adicionado!');
+                area.innerHTML = '';
+            });
         };
     }
 }
