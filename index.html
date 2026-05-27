@@ -1,169 +1,110 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GEASFLIX</title>
-  <link rel="stylesheet" href="global.css">
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <style>
-    /* Correção rápida para o tamanho da logo de login */
-    .login-logo {
-      width: 100%;
-      max-width: 180px; /* Impede a imagem de ficar gigante */
-      height: auto;
-      display: block;
-      margin: 0 auto 30px auto; /* Centraliza e dá espaço em baixo */
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CineEscola - Votação</title>
+    <link rel="stylesheet" href="global.css">
 </head>
 <body>
-
-  <div id="loader" class="loader-overlay hidden">
-    <div class="spinner"></div>
-  </div>
-
-  <header id="main-header" class="hidden">
-    <div class="logo-container">
-      <img src="logo.png" alt="GEASFLIX" id="logo">
-    </div>
-    <nav id="main-nav">
-      <button class="nav-btn" onclick="navigate('home')">INÍCIO</button>
-      <button class="nav-btn" onclick="navigate('suggest')">SUGERIR UM FILME</button>
-      <button class="nav-btn" onclick="navigate('tickets')">INGRESSOS</button>
-      <button id="adm-btn" class="nav-btn hidden" onclick="navigate('admin')">ADM</button>
-      <button class="nav-btn logout-btn" onclick="logout()">SAIR</button>
-    </nav>
-  </header>
-
-  <main id="app-content">
-    
-    <section id="view-login" class="view active netflix-login">
-      <img src="logo.png" alt="GEASFLIX" class="login-logo">
-      <div class="login-box">
-        <h2>Entrar</h2>
-        <form id="login-form">
-          <input type="email" id="login-email" placeholder="Email" required>
-          <input type="password" id="login-password" placeholder="Senha" required>
-          <button type="submit" class="red-btn">Entrar</button>
-        </form>
-        <p>Novo por aqui? <a href="#" onclick="toggleAuthMode('register')">Registrar-se</a></p>
-      </div>
-    </section>
-
-    <section id="view-register" class="view hidden netflix-login">
-      <img src="logo.png" alt="GEASFLIX" class="login-logo">
-      <div class="login-box">
-        <h2>Registrar</h2>
-        <form id="register-form">
-          <input type="text" id="reg-name" placeholder="Nome Completo" required minlength="4">
-          <input type="text" id="reg-cpf" placeholder="CPF" required minlength="11">
-          <input type="email" id="reg-email" placeholder="Email" required>
-          <input type="password" id="reg-password" placeholder="Senha" required minlength="6">
-          <button type="submit" class="red-btn">Registrar</button>
-        </form>
-        <p>Já tem uma conta? <a href="#" onclick="toggleAuthMode('login')">Entrar</a></p>
-      </div>
-    </section>
-
-    <section id="view-home" class="view hidden">
-      <h3 class="section-title">VOTE PARA ESCOLHER UM FILME PARA A PRÓXIMA SESSÃO...</h3>
-      <div id="movies-grid" class="grid-container"></div>
-    </section>
-
-    <section id="view-movie" class="view hidden">
-      <div class="movie-details-container">
-        <img id="movie-detail-cover" src="" alt="Capa">
-        <div class="movie-detail-info">
-          <div id="movie-detail-trailer" class="trailer-container"></div>
-          <h2 id="movie-detail-title"></h2>
-          <button class="red-btn large-btn" onclick="openVoteModal()">VOTAR NESTE</button>
+    <header class="main-header">
+        <img src="logo.png" alt="Netflix Escola Logo" class="site-logo">
+        <div id="user-profile-container" class="hidden">
+            <div id="user-avatar" class="avatar"></div>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <section id="view-suggest" class="view hidden">
-      <div class="form-container">
-        <h2>Sugerir um Filme</h2>
-        <form id="suggest-form">
-          <input type="text" id="sug-movie" placeholder="Nome do Filme" required>
-          <input type="url" id="sug-trailer" placeholder="Link do Trailer (Opcional)">
-          <button type="submit" class="red-btn">Enviar Sugestão</button>
-        </form>
-      </div>
-    </section>
+    <main class="container">
+        <section id="login-section" class="auth-card">
+            <h2>Entrar</h2>
+            <form id="login-form">
+                <div class="input-group">
+                    <input type="email" id="login-email" placeholder="Email" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="login-password" placeholder="Senha" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+                <div class="form-help">
+                    <label><input type="checkbox" checked> Lembre-se de mim</label>
+                    <a href="#">Precisa de ajuda?</a>
+                </div>
+            </form>
+            <div class="form-switch">
+                Novo por aqui? <span id="go-to-register">Assine agora.</span>
+            </div>
+        </section>
 
-    <section id="view-tickets" class="view hidden">
-      <h2>Meus Ingressos</h2>
-      <div id="tickets-list" class="grid-container"></div>
-      <h2 style="margin-top: 40px;">Sessões Disponíveis</h2>
-      <div id="sessions-list" class="grid-container"></div>
-    </section>
+        <section id="register-section" class="auth-card hidden">
+            <h2>Registrar</h2>
+            <form id="register-form">
+                <div class="input-group">
+                    <input type="text" id="reg-name" placeholder="Nome Completo" required>
+                </div>
+                <div class="input-group">
+                    <input type="text" id="reg-cpf" placeholder="CPF (apenas 11 números)" maxlength="11" required>
+                </div>
+                <div class="input-group">
+                    <input type="email" id="reg-email" placeholder="E-mail" required>
+                </div>
+                <div class="input-group">
+                    <input type="password" id="reg-password" placeholder="Senha (Min 6 chars, A-z, 0-9, !@#)" required>
+                </div>
+                <button type="submit" class="btn-primary">Cadastrar</button>
+            </form>
+            <div class="form-switch">
+                Já tem conta? <span id="go-to-login">Entrar agora.</span>
+            </div>
+        </section>
 
-    <section id="view-admin" class="view hidden">
-      <h2>Painel Administrativo</h2>
-      <div class="admin-menu">
-        <button class="red-btn" onclick="showAdminSection('admin-add-movie')">Novo Filme</button>
-        <button class="red-btn" onclick="showAdminSection('admin-add-session')">Adicionar Sessão</button>
-        <button class="red-btn" onclick="loadAdminSuggestions()">Ver Sugestões</button>
-        <button class="red-btn" onclick="loadAdminVotes()">Ver Votos</button>
-        <button class="red-btn" onclick="showAdminSection('admin-scan-qr')">Confirmar Ticket</button>
-      </div>
-      <div id="admin-content" class="admin-content-area"></div>
-    </section>
+        <section id="main-content" class="hidden">
+            <div id="movie-list-view">
+                <h2 class="section-title">Filmes em Cartaz</h2>
+                <div id="movies-grid" class="movies-grid"></div>
+            </div>
 
-  </main>
+            <div id="movie-detail-view" class="hidden">
+                <button id="back-to-list" class="btn-secondary">← Voltar para a lista</button>
+                <div class="detail-container">
+                    <div class="detail-top">
+                        <img id="detail-cover" src="" alt="Capa do filme" class="detail-cover">
+                        <div id="detail-player" class="player-container"></div>
+                    </div>
+                    <div class="detail-bottom">
+                        <div id="detail-synopsis" class="synopsis-box"></div>
+                        <button id="btn-vote" class="btn-primary btn-large">Votar</button>
+                    </div>
+                </div>
+            </div>
 
-  <footer id="main-footer" class="hidden">
-    <p>R. Rafael Targino, S/N, Planalto, Ceará-Mirim - 59570-000</p>
-    <p>
-      <a href="https://instagram.com/geasceep" target="_blank">@geasceep</a> | 
-      <a href="https://instagram.com/ceepruyantunes" target="_blank">@ceepruyantunes</a>
-    </p>
-  </footer>
+            <section class="ranking-section">
+                <h2 class="section-title">Classificação Geral</h2>
+                <table class="ranking-table">
+                    <thead>
+                        <tr>
+                            <th>Posição</th>
+                            <th>Filme</th>
+                            <th>Votos</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ranking-body">
+                        </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
 
-  <div id="vote-modal" class="modal hidden">
-    <div class="modal-content">
-      <p>Antes de votar, confira os outros trailers!</p>
-      <div class="modal-actions">
-        <button class="red-btn" onclick="confirmVote()">VOTAR MESMO ASSIM</button>
-        <button class="white-btn" onclick="closeVoteModal()">CONFERIR OS OUTROS</button>
-      </div>
-    </div>
-  </div>
+    <dialog id="vote-dialog" class="vote-dialog">
+        <div class="dialog-content">
+            <p>Tem certeza que deseja votar neste? O voto é único para cada usuário e não pode ser alterado. Deseja conferir os outros filmes antes de decidir?</p>
+            <div class="dialog-buttons">
+                <button id="confirm-vote" class="btn-primary">Votar mesmo assim</button>
+                <button id="cancel-vote" class="btn-secondary">Conferir outros</button>
+            </div>
+        </div>
+    </dialog>
 
-  <div id="payment-modal" class="modal hidden">
-    <div class="modal-content">
-      <p>Ao finalizar o pagamento do seu ingresso, você receberá um email com detalhes do pedido pelo banco infinite pay. Copie o codigo do pedido e cole aqui.</p>
-      <input type="text" id="payment-key" placeholder="Ex: 642f6836-b890-4207-b148-3e43a94afaba">
-      <div class="modal-actions">
-        <button class="red-btn" onclick="confirmPayment()">Confirmar Pagamento</button>
-        <button class="white-btn" onclick="closePaymentModal()">Cancelar</button>
-      </div>
-    </div>
-  </div>
-
-  <script src="auth.js"></script>
-  <script>
-    // Funções globais utilitárias para o front
-    function showLoader() { document.getElementById('loader').classList.remove('hidden'); }
-    function hideLoader() { document.getElementById('loader').classList.add('hidden'); }
-
-    function navigate(viewId) {
-      document.querySelectorAll('.view').forEach(v => v.classList.add('hidden'));
-      document.getElementById('view-' + viewId).classList.remove('hidden');
-      // if(viewId === 'home') loadMovies();
-      // if(viewId === 'tickets') loadTicketsData();
-    }
-    
-    window.onload = function() {
-      // checkAuth() logic is already handled inside DOMContentLoaded in auth.js
-    }
-  </script>
-  <script src="adm.js"></script>
-<script src="results.js"></script>
-<script src="suggestions.js"></script>
-<script src="tickets.js"></script>
-<script src="votes.js"></script>
+    <script src="auth.js"></script>
+    <script src="movies.js"></script>
 </body>
 </html>
