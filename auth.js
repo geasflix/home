@@ -1,5 +1,5 @@
 window.AppConfig = {
-    WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwAf9iY7q7GgzJwAQ4kS50nuyLscFeojVHLTy2wwTDcLB6OrRV0Ea3ywVHGQVkMR-sb/exec"
+    WEB_APP_URL: "https://script.google.com/macros/s/AKfycbxpzaWx45EK0_CDG5I55gdp0UABMVz-dYtFz_wBpp9HEwL_oD5fpPCitlfZtzLqBs3U/exec"
 };
 
 document.addEventListener("DOMContentLoaded", () => {
