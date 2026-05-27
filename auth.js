@@ -1,121 +1,121 @@
-window.API_URL = "https://script.google.com/macros/s/AKfycbyfOXZQQj0rljPiqsg8v79DF4MunEfO-5ngsE9j89Gsc-KheuthVoDDdhYT0_OaT7GN/exec";
-let currentUser = null;
-document.addEventListener('DOMContentLoaded', () => {
-    // Carrega usuário do cache se existir
-    const cachedUser = localStorage.getItem('geasflix_user');
+window.AppConfig = {
+    WEB_APP_URL: "https://script.google.com/macros/s/AKfycbwAf9iY7q7GgzJwAQ4kS50nuyLscFeojVHLTy2wwTDcLB6OrRV0Ea3ywVHGQVkMR-sb/exec"
+};
+
+document.addEventListener("DOMContentLoaded", () => {
+    const loginSection = document.getElementById("login-section");
+    const registerSection = document.getElementById("register-section");
+    const mainContent = document.getElementById("main-content");
+    const profileContainer = document.getElementById("user-profile-container");
+    const userAvatar = document.getElementById("user-avatar");
+
+    document.getElementById("go-to-register").addEventListener("click", () => {
+        loginSection.classList.add("hidden");
+        registerSection.classList.remove("hidden");
+    });
+
+    document.getElementById("go-to-login").addEventListener("click", () => {
+        registerSection.classList.add("hidden");
+        loginSection.classList.remove("hidden");
+    });
+
+    userAvatar.addEventListener("click", () => {
+        if(confirm("Deseja realmente sair da conta?")) {
+            localStorage.removeItem("loggedUser");
+            location.reload();
+        }
+    });
+
+    // Check cached session
+    const cachedUser = localStorage.getItem("loggedUser");
     if (cachedUser) {
-        currentUser = JSON.parse(cachedUser);
-        setupAuthenticatedUI();
+        window.currentUser = JSON.parse(cachedUser);
+        showMainScreen();
     }
-    
-    // Estilização forçada padrão Netflix
-    const authButtons = document.querySelectorAll('#login-form button, #register-form button');
-    authButtons.forEach(btn => {
-        btn.style.backgroundColor = '#E50914';
-        btn.style.color = '#FFFFFF';
-        btn.style.fontWeight = 'bold';
-        btn.style.border = 'none';
-        btn.style.padding = '12px 24px';
-        btn.style.borderRadius = '4px';
-        btn.style.cursor = 'pointer';
-        btn.style.width = '100%';
-        btn.style.fontSize = '16px';
-        btn.style.marginTop = '10px';
-        btn.addEventListener('mouseover', () => btn.style.backgroundColor = '#b20710');
-        btn.addEventListener('mouseout', () => btn.style.backgroundColor = '#E50914');
-    });
-});
 
-// Ajustado para os IDs do index.html (view-login/register)
-function toggleAuthMode(mode) {
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-register').classList.add('hidden');
-    document.getElementById(`view-${mode}`).classList.remove('hidden');
-}
+    // Handle Login
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
 
-// Handler do Login
-document.getElementById('login-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    showLoader();
-    const email = document.getElementById('login-email').value;
-    const pass = document.getElementById('login-password').value;
-    
-    fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ action: 'loginUser', email: email, password: pass })
-    })
-    .then(response => response.json())
-    .then(res => {
-        hideLoader();
+        const res = await makeRequest({ action: "login", email, password });
         if (res.success) {
-            currentUser = res;
-            localStorage.setItem('geasflix_user', JSON.stringify(res));
-            setupAuthenticatedUI();
+            window.currentUser = res.user;
+            localStorage.setItem("loggedUser", JSON.stringify(res.user));
+            showMainScreen();
         } else {
-            alert(res.message || 'Erro no login.');
+            alert(res.message);
         }
-    })
-    .catch(error => {
-        hideLoader();
-        console.error(error);
-        alert('Falha na comunicação com o servidor.');
     });
-});
 
-// Handler do Registro
-document.getElementById('register-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const name = document.getElementById('reg-name').value;
-    const cpf = document.getElementById('reg-cpf').value;
-    const email = document.getElementById('reg-email').value;
-    const pass = document.getElementById('reg-password').value;
-    
-    if (name.split(' ').length < 2 || name.length < 4) return alert('Insira nome e sobrenome.');
-    if (cpf.length < 11) return alert('CPF inválido.');
-    
-    showLoader();
-    fetch(API_URL, {
-        method: 'POST',
-        body: JSON.stringify({ 
-            action: 'registerUser', 
-            userData: { fullName: name, cpf: cpf, email: email, password: pass } 
-        })
-    })
-    .then(response => response.json())
-    .then(res => {
-        hideLoader();
+    // Handle Registration
+    document.getElementById("register-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const fullName = document.getElementById("reg-name").value.trim();
+        const cpf = document.getElementById("reg-cpf").value.trim();
+        const email = document.getElementById("reg-email").value.trim();
+        const password = document.getElementById("reg-password").value;
+
+        // Validation Rules
+        if (fullName.length < 4 || !fullName.includes(" ")) {
+            alert("Nome completo deve ter pelo menos 4 caracteres e conter pelo menos um espaço.");
+            return;
+        }
+        if (!/^\d{11}$/.test(cpf)) {
+            alert("CPF deve conter exatamente 11 dígitos numéricos.");
+            return;
+        }
+        if (!/^[\w\.-]+@[\w\.-]+\.\w+$/.test(email)) {
+            alert("Padrão de e-mail inválido.");
+            return;
+        }
+        if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#\$%\^&\*_\-\+\=\?\/\.\,]).{6,}$/.test(password)) {
+            alert("A senha deve conter pelo menos 6 caracteres, incluindo 1 maiúscula, 1 minúscula, 1 número e 1 caractere especial.");
+            return;
+        }
+
+        const userCode = "USR-" + Math.random().toString(36).substr(2, 9).toUpperCase();
+
+        const res = await makeRequest({
+            action: "register",
+            fullName,
+            cpf,
+            email,
+            password,
+            userCode
+        });
+
+        alert(res.message);
         if (res.success) {
-            alert('Registro concluído. Faça login.');
-            toggleAuthMode('login');
-        } else {
-            alert(res.message || 'Erro no registro.');
+            registerSection.classList.add("hidden");
+            loginSection.classList.remove("hidden");
         }
-    })
-    .catch(error => {
-        hideLoader();
-        alert('Falha na comunicação.');
     });
-});
 
-// Função para configurar a tela após logado
-function setupAuthenticatedUI() {
-    // Esconde as views de auth e mostra o conteúdo principal
-    document.getElementById('view-login').classList.add('hidden');
-    document.getElementById('view-register').classList.add('hidden');
-    
-    document.getElementById('main-header').classList.remove('hidden');
-    document.getElementById('main-footer').classList.remove('hidden');
-    
-    // Mostra botão de ADM se for admin
-    if (currentUser && currentUser.isAdmin) {
-        document.getElementById('adm-btn').classList.remove('hidden');
+    function showMainScreen() {
+        loginSection.classList.add("hidden");
+        registerSection.classList.add("hidden");
+        mainContent.classList.remove("hidden");
+        profileContainer.classList.remove("hidden");
+        userAvatar.innerText = window.currentUser.fullName.charAt(0).toUpperCase();
+        userAvatar.title = `${window.currentUser.fullName} (Sair)`;
+        
+        if(window.initMoviesModule) {
+            window.initMoviesModule();
+        }
     }
-    
-    navigate('home');
-}
+});
 
-function logout() {
-    localStorage.removeItem('geasflix_user');
-    currentUser = null;
-    location.reload();
+async function makeRequest(data) {
+    try {
+        const response = await fetch(window.AppConfig.WEB_APP_URL, {
+            method: "POST",
+            body: JSON.stringify(data)
+        });
+        return await response.json();
+    } catch (error) {
+        console.error("Erro na requisição:", error);
+        return { success: false, message: "Erro de comunicação com o servidor." };
+    }
 }
