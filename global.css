@@ -318,3 +318,48 @@ body {
     width: auto;
     margin-top: 0;
 }
+.loader-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.85); /* Fundo escuro transparente */
+    z-index: 9999; /* Fica por cima de absolutamente tudo */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 6px solid rgba(255, 255, 255, 0.1);
+    border-left-color: #E50914; /* Vermelho característico da Netflix */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+.detail-top {
+    flex-wrap: nowrap !important; /* Impede que o trailer quebre para a linha de baixo */
+    align-items: flex-start;
+    gap: 30px;
+}
+
+.detail-cover {
+    width: 160px; /* Reduzido de 220px para ficar mais discreto à esquerda */
+    height: 240px; /* Mantém a proporção correta de aspecto (2:3) */
+    flex-shrink: 0; /* Impede o navegador de esmagar a imagem lateralmente */
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.player-container {
+    flex: 1;
+    height: 240px; /* Alinha perfeitamente a altura do player com a nova altura da capa */
+}
