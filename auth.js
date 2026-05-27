@@ -108,6 +108,9 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 async function makeRequest(data) {
+    // Exibe o loader na tela antes de iniciar a busca
+    document.getElementById("loader").classList.remove("hidden");
+    
     try {
         const response = await fetch(window.AppConfig.WEB_APP_URL, {
             method: "POST",
@@ -117,5 +120,8 @@ async function makeRequest(data) {
     } catch (error) {
         console.error("Erro na requisição:", error);
         return { success: false, message: "Erro de comunicação com o servidor." };
+    } finally {
+        // Garante que o loader será ocultado ao terminar, com sucesso ou erro
+        document.getElementById("loader").classList.add("hidden");
     }
 }
